@@ -1,4 +1,4 @@
-import { Button, ButtonGroup, FormControl, InputGroup, Modal } from "react-bootstrap";
+import { Button, ButtonGroup, Col, Form, Modal, OverlayTrigger, Tooltip, Row } from "react-bootstrap";
 
 import React from "react";
 
@@ -8,8 +8,10 @@ class ProfileModal extends React.Component {
 
         this.state = {
             profiles: [],
-            currentProfile: "Default",
-            profileName: ""
+            availableCemuAccounts: [],
+            currentProfile: { name: "Default" },
+            profileName: "",
+            cemuAccount: ""
         };
     }
 
@@ -20,10 +22,23 @@ class ProfileModal extends React.Component {
     refreshProfiles = async () => {
         const profiles = await pywebview.api.get_profiles();
         const currentProfile = await pywebview.api.get_current_profile();
+        const availableCemuAccounts = await pywebview.api.get_cemu_accounts();
         this.setState({
             profiles,
             profileName: "",
-            currentProfile
+            cemuAccount: "",
+            currentProfile: { name: currentProfile },
+            availableCemuAccounts
+        });
+    };
+
+    handleChange = e => {
+        try {
+            e.persist();
+        } catch (error) { }
+
+        this.setState({
+            [e.target.id]: e.target.type != "checkbox" ? e.target.value : e.target.checked
         });
     };
 
@@ -38,27 +53,62 @@ class ProfileModal extends React.Component {
                 </Modal.Header>
                 <Modal.Body>
                     <div className="h5">
-                        <strong>Current Profile:</strong> {this.state.currentProfile}
+                        <strong>Current Profile:</strong> {this.state.currentProfile.name}
                     </div>
-                    <InputGroup className="mb-3">
-                        <FormControl
-                            placeholder="Name new profile"
-                            value={this.state.profileName}
-                            onChange={e =>
-                                this.setState({ profileName: e.currentTarget.value })
-                            }
-                        />
-                        <InputGroup.Append>
-                            <Button
-                                variant="primary"
-                                disabled={!this.state.profileName}
-                                onClick={() =>
-                                    this.props.onSave(this.state.profileName, "save")
-                                }>
-                                Save
-                            </Button>
-                        </InputGroup.Append>
-                    </InputGroup>
+                    <Form>
+                        <Row>
+                            <Col>
+                                <Form.Group>
+                                    <Form.Control
+                                        placeholder="Name new profile"
+                                        value={this.state.profileName}
+                                        onChange={e =>
+                                            this.setState({ profileName: e.currentTarget.value })
+                                        }
+                                    />
+                                </Form.Group>
+                            </Col>
+                        </Row>
+                        <Row>
+                            <Col className="pr-0">
+                                <Form.Group controlId="cemuAccount">
+                                    <OverlayTrigger
+                                        overlay={
+                                            <Tooltip>
+                                                lorum ipsum
+                                            </Tooltip>
+                                        }>
+                                        <Form.Control
+                                            as="select"
+                                            value={this.state.currentProfile.cemu_account || ""}
+                                            onChange={this.handleChange}>
+                                            <option value={""}>Associate Cemu account</option>
+                                            {this.state.availableCemuAccounts.map(account => (
+                                                <option value={account.persistentid} key={account.persistentid}>
+                                                    {account.miiname_decoded} ({account.persistentid})
+                                                </option>
+                                            ))}
+                                        </Form.Control>
+                                    </OverlayTrigger>
+                                </Form.Group>
+                            </Col>
+                            <Col md="auto">
+                                <Form.Group>
+                                    <Button
+                                        variant="primary"
+                                        disabled={!this.state.profileName}
+                                        onClick={() =>
+                                            this.props.onSave({
+                                                name: this.state.profileName,
+                                                cemuAccount: this.state.cemuAccount,
+                                            }, "save")
+                                        }>
+                                        Save
+                                    </Button>
+                                </Form.Group>
+                            </Col>
+                        </Row>
+                    </Form>
                     <div className="h5">Available Profiles</div>
                     {this.state.profiles.length > 0 ? (
                         this.state.profiles.map(profile => (
@@ -66,6 +116,7 @@ class ProfileModal extends React.Component {
                                 className="d-flex flex-row align-items-center mb-1"
                                 key={profile.path}>
                                 <span>{profile.name}</span>
+                                {profile.cemu_account && <span> ({profile.cemu_account})</span>}
                                 <div className="flex-grow-1"> </div>
                                 <ButtonGroup size="xs">
                                     <Button

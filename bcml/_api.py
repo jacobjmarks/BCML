@@ -349,6 +349,9 @@ class Api:
                 return "Default"
             return profile.read_text("utf-8")
 
+    def get_cemu_accounts(self):
+        return util.get_cemu_accounts()
+
     @win_or_lose
     @install.refresher
     def set_profile(self, params):
