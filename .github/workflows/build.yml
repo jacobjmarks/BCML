@@ -18,7 +18,7 @@ jobs:
       npm_assets_changed: ${{ steps.get_changes.outputs.npm_assets }}
       rust_src_changed: ${{ steps.get_changes.outputs.rust_src }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: dorny/paths-filter@v2
         id: get_changes
         with:
@@ -56,7 +56,7 @@ jobs:
     if: ${{ needs.check_changes.outputs.rust_src_changed == 'true' }}
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Install Rust toolchain
       uses: actions-rs/toolchain@v1
       with:
@@ -82,7 +82,7 @@ jobs:
     if: ${{ needs.check_changes.outputs.rust_src_changed == 'true' }}
     runs-on: windows-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Install Rust toolchain
       uses: actions-rs/toolchain@v1
       with:
