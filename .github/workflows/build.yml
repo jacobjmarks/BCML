@@ -15,7 +15,7 @@ jobs:
     name: Check changes
     runs-on: ubuntu-latest
     outputs:
-      npm_assets_changed: ${{ steps.get_changes.outputs.npm_assets_changed }}
+      npm_assets_changed: ${{ steps.get_changes.outputs.npm_assets }}
       rust_src_changed: ${{ steps.get_changes.outputs.rust_src }}
     steps:
       - uses: actions/checkout@v2
