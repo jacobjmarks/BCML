@@ -45,9 +45,10 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
-      - run: cd bcml/assets
       - run: npm ci
+        working-directory: bcml/assets
       - run: npm run build
+        working-directory: bcml/assets
 
   maturin_build_linux:
     name: Maturin (Linux)
